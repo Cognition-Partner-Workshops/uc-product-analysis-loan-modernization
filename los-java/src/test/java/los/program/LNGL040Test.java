@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import los.Dd;
 import los.record.Copybooks;
@@ -124,6 +125,20 @@ class LNGL040Test {
         for (int i = 85; i < bytes.length; i += 86) {
             assertEquals('\n', bytes[i]);
         }
+    }
+
+    @Test
+    void sysoutIsAsciiDigitsAndLfUnderNonLatinDefaultLocale(@TempDir Path tmp) throws IOException {
+        Locale saved = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.forLanguageTag("ar-EG-u-nu-arab"));
+            runOn(tmp, decision(8, 'A', "CNV", "CNV30", "1234567.89", "0"));
+        } finally {
+            Locale.setDefault(saved);
+        }
+        assertEquals("LNGL040  LINES    0000002\nLNGL040  TOTAL DR       1234567.89\n"
+                + "LNGL040  TOTAL CR       1234567.89\n", sysout.toString(StandardCharsets.ISO_8859_1));
+        assertEquals("            1.00", LNGL040.edit(new BigDecimal("1.00")));
     }
 
     @Test

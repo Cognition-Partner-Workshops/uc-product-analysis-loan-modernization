@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Locale;
 import los.BatchProgram;
 import los.Dd;
 import los.record.Copybooks;
@@ -67,14 +68,19 @@ public final class LNGL040 implements BatchProgram {
                 }
             }
         }
-        sysout.println("LNGL040  LINES    " + String.format("%07d", totals.lines));
-        sysout.println("LNGL040  TOTAL DR " + edit(totals.dr));
-        sysout.println("LNGL040  TOTAL CR " + edit(totals.cr));
+        display(sysout, "LNGL040  LINES    " + String.format(Locale.ROOT, "%07d", totals.lines));
+        display(sysout, "LNGL040  TOTAL DR " + edit(totals.dr));
+        display(sysout, "LNGL040  TOTAL CR " + edit(totals.cr));
         if (totals.dr.compareTo(totals.cr) != 0) {
-            sysout.println("LNGL040  OUT OF BALANCE");
+            display(sysout, "LNGL040  OUT OF BALANCE");
             return RC_OUT_OF_BALANCE;
         }
         return 0;
+    }
+
+    /** A DISPLAY line: LF-terminated whatever the platform line separator is. */
+    private static void display(PrintStream sysout, String line) {
+        sysout.print(line + "\n");
     }
 
     private static long readRunDate(Dd dd) throws IOException {
@@ -145,7 +151,7 @@ public final class LNGL040 implements BatchProgram {
     /** A 9(13)V99 total edited through {@code Z(12)9.99}: 16 characters, leading zeros as spaces. */
     static String edit(BigDecimal total) {
         BigInteger[] parts = total.setScale(2).unscaledValue().divideAndRemainder(BigInteger.valueOf(100));
-        return String.format("%13d.%02d", parts[0], parts[1]);
+        return String.format(Locale.ROOT, "%13d.%02d", parts[0], parts[1]);
     }
 
     private static final class Totals {
