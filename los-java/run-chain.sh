@@ -16,10 +16,12 @@ java -cp "$HERE/target/los-java.jar" los.program.PortStatus > "$OUT/ports.tsv"
 : > "$OUT/steps.tsv"
 : > "$OUT/stderr.txt"
 echo "LOSNIGHT RUN DATE $RUN_DATE" > "$OUT/SYSOUT.txt"
+mkdir -p "$OUT/sysout"
 failed=0
 for prog in LNPRC010 LNUWR020 LNFIS030 LNGL040 LNHMD050; do
   rc=0
-  java -jar "$HERE/target/los-java.jar" "$prog" >> "$OUT/SYSOUT.txt" 2>> "$OUT/stderr.txt" || rc=$?
+  java -jar "$HERE/target/los-java.jar" "$prog" > "$OUT/sysout/$prog.txt" 2>> "$OUT/stderr.txt" || rc=$?
+  cat "$OUT/sysout/$prog.txt" >> "$OUT/SYSOUT.txt"
   printf '%s\t%s\n' "$prog" "$rc" >> "$OUT/steps.tsv"
   echo "$prog RC=$rc"
   if (( rc != 0 )); then failed=1; fi

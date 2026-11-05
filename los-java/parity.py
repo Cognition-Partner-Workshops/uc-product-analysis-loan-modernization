@@ -48,8 +48,9 @@ def check(out, chain_rc):
     for program in PROGRAMS:
         if ports[program] == "true":
             prefix = program.encode() + b" "
-            ok = ([line for line in actual_lines if line.startswith(prefix)]
-                  == [line for line in expected_lines if line.startswith(prefix)])
+            expected = b"".join(line for line in expected_lines if line.startswith(prefix))
+            captured = out / "sysout" / f"{program}.txt"
+            ok = captured.is_file() and captured.read_bytes() == expected
             failed |= not ok
             lines.append(f"| SYSOUT.txt ({program}) | {program} | "
                          f"{'PASS' if ok else 'FAIL'} | enforced |")
