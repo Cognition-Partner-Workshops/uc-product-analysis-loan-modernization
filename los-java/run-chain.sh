@@ -18,11 +18,20 @@ java -cp "$HERE/target/los-java.jar" los.program.PortStatus > "$OUT/ports.tsv"
 echo "LOSNIGHT RUN DATE $RUN_DATE" > "$OUT/SYSOUT.txt"
 mkdir -p "$OUT/sysout"
 failed=0
+products=("$DD_PRICED" "$DD_DECISION" "$DD_FISOUT" "$DD_GLOUT" "$DD_HMDAOUT")
+index=0
 for prog in LNPRC010 LNUWR020 LNFIS030 LNGL040 LNHMD050; do
   rc=0
   java -jar "$HERE/target/los-java.jar" "$prog" > "$OUT/sysout/$prog.txt" 2>> "$OUT/stderr.txt" || rc=$?
   cat "$OUT/sysout/$prog.txt" >> "$OUT/SYSOUT.txt"
-  printf '%s\t%s\n' "$prog" "$rc" >> "$OUT/steps.tsv"
+  product="${products[$index]}"
+  source=java
+  if [[ "$(awk -F '\t' -v p="$prog" '$1 == p {print $2}' "$OUT/ports.tsv")" == false ]]; then
+    cp "$HERE/../legacy-los/golden/$(basename "$product")" "$product"
+    source=golden-substituted
+  fi
+  printf '%s\t%s\t%s\t%s\n' "$prog" "$rc" "$(basename "$product")" "$source" >> "$OUT/steps.tsv"
+  index=$((index + 1))
   echo "$prog RC=$rc"
   if (( rc != 0 )); then failed=1; fi
 done
