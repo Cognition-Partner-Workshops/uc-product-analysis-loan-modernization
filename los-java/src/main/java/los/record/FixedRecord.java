@@ -87,6 +87,11 @@ public final class FixedRecord {
         if (f.numeric()) {
             throw new IllegalArgumentException(name + " is numeric; set it from a BigDecimal or long");
         }
+        int bad = Latin1.firstUnencodable(value);
+        if (bad >= 0) {
+            throw new UnencodableCharacterException(name + " position " + (bad + 1) + " holds "
+                    + Latin1.describe(value.codePointAt(bad)) + ", which ISO-8859-1 cannot encode");
+        }
         for (int i = 0; i < f.length(); i++) {
             data[f.offset() + i] = i < value.length() ? value.charAt(i) : ' ';
         }

@@ -3,6 +3,7 @@ package los.record;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -64,5 +65,20 @@ class RecordIoTest {
         }
         assertEquals(4, Files.readAllBytes(out).length);
         assertEquals((byte) 0xC9, Files.readAllBytes(out)[0]);
+    }
+
+    @Test
+    void unencodableCharactersFailTheWriteInsteadOfBecomingQuestionMarks(@TempDir Path tmp) throws IOException {
+        Path out = tmp.resolve("out");
+        try (RecordWriter w = RecordWriter.open(out, LineMode.FIXED)) {
+            w.write("Zoë");
+            UnencodableCharacterException e = assertThrows(UnencodableCharacterException.class,
+                    () -> w.write("ab王"));
+            assertTrue(e.getMessage().contains("record 2 column 3"), e.getMessage());
+            assertThrows(UnencodableCharacterException.class, () -> w.write("\uD83D\uDE00"));
+            assertEquals(1, w.written());
+        }
+        assertEquals("Zoë\n", Files.readString(out, StandardCharsets.ISO_8859_1));
+        assertEquals(4, Files.readAllBytes(out).length);
     }
 }

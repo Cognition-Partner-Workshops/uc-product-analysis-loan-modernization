@@ -2,6 +2,7 @@ package los.record;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -129,5 +130,17 @@ class FixedRecordTest {
         assertThrows(IllegalArgumentException.class, () -> r.set("A", "12"));
         assertThrows(IllegalArgumentException.class, () -> r.getDecimal("NAME"));
         assertThrows(IllegalArgumentException.class, () -> r.getLong("A"));
+    }
+
+    @Test
+    void latin1NamesAreKeptAndOthersAreRejectedNotReplaced() {
+        FixedRecord r = FixedRecord.blank(T).set("NAME", "Zoë");
+        assertEquals("Zoë   ", r.getString("NAME"));
+
+        UnencodableCharacterException e = assertThrows(UnencodableCharacterException.class,
+                () -> r.set("NAME", "Łukasz"));
+        assertTrue(e.getMessage().contains("NAME") && e.getMessage().contains("U+0141"), e.getMessage());
+        assertEquals("Zoë   ", r.getString("NAME"));
+        assertThrows(UnencodableCharacterException.class, () -> r.set("NAME", "王芳"));
     }
 }
