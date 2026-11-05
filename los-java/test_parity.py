@@ -37,6 +37,46 @@ class ParityGateTest(unittest.TestCase):
     def test_matching_ported_chain(self):
         self.assertEqual(0, self.gate())
 
+    def downstream_only(self):
+        consumer = "LNFIS030"
+        names = ["PRICED.dat", "DECISION.dat", "FISACCT.dat",
+                 "LOS_GL_20261105.dat", "LOS_HMDA_202611.csv"]
+        (self.out / "ports.tsv").write_text(
+            "".join(f"{p}\t{str(p == consumer).lower()}\n" for p in PROGRAMS))
+        (self.out / "steps.tsv").write_text("".join(
+            f"{p}\t{0 if p == consumer else 12}\t{name}\t"
+            f"{'java' if p == consumer else 'golden-substituted'}\n"
+            for p, name in zip(PROGRAMS, names)))
+        (self.out / "SYSOUT.txt").write_bytes(
+            b"LOSNIGHT RUN DATE 20261105\n"
+            + (self.out / "sysout/LNFIS030.txt").read_bytes())
+
+    def test_ported_consumer_with_golden_upstream(self):
+        self.downstream_only()
+        self.assertEqual(0, self.gate())
+        report = (self.out / "parity.md").read_text()
+        self.assertIn("| FISACCT.dat | LNFIS030 (RC 0) | PASS | enforced |", report)
+        self.assertIn("| PRICED.dat | LNPRC010 (RC 12) | golden-substituted | "
+                      "not ported (non-gating) |", report)
+        self.assertIn("| PRICED.dat | — | — | — | golden-substituted |", report)
+        self.assertNotIn("LNPRC010 (RC 12) | PASS", report)
+
+    def test_golden_upstream_does_not_mask_missing_consumer_output(self):
+        self.downstream_only()
+        (self.out / "FISACCT.dat").unlink()
+        self.assertEqual(1, self.gate())
+
+    def test_golden_upstream_does_not_mask_wrong_consumer_output(self):
+        self.downstream_only()
+        (self.out / "FISACCT.dat").write_bytes(b"wrong\n")
+        self.assertEqual(1, self.gate())
+
+    def test_substitution_cannot_pass_ported_producer(self):
+        self.downstream_only()
+        (self.out / "ports.tsv").write_text(
+            "".join(f"{p}\ttrue\n" for p in PROGRAMS))
+        self.assertEqual(1, self.gate())
+
     def pricing_only(self):
         self.status(False, 12)
         (self.out / "ports.tsv").write_text(
