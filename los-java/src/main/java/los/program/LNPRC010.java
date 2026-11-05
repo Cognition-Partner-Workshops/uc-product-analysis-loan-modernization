@@ -77,11 +77,13 @@ public final class LNPRC010 implements BatchProgram {
                 .set("PRC-FINAL-RATE", base.add(risk));
         BigDecimal monthly = monthlyRate(result.getDecimal("PRC-FINAL-RATE"));
         BigDecimal factor = factor(monthly, term);
-        BigDecimal payment = app.getDecimal("LOAN-AMT").multiply(monthly).multiply(factor)
-                .divide(factor.subtract(BigDecimal.ONE), 2, RoundingMode.HALF_UP);
+        if (factor.compareTo(BigDecimal.ONE) != 0) {
+            BigDecimal payment = app.getDecimal("LOAN-AMT").multiply(monthly).multiply(factor)
+                    .divide(factor.subtract(BigDecimal.ONE), 2, RoundingMode.HALF_UP);
+            result.set("PRC-MONTHLY-PMT", payment);
+        }
         BigDecimal fee = extensionPercent(app.getInt("LOCK-EXTS"));
-        return result.set("PRC-MONTHLY-PMT", payment)
-                .set("PRC-EXT-FEE-PCT", fee)
+        return result.set("PRC-EXT-FEE-PCT", fee)
                 .set("PRC-EXT-FEE-AMT", app.getDecimal("LOAN-AMT").multiply(fee)
                         .movePointLeft(2), RoundingMode.HALF_UP);
     }

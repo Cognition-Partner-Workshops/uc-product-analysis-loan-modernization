@@ -122,6 +122,39 @@ class LNPRC010Test {
     }
 
     @Test
+    void zeroFinalRateMatchesCobolBeforeAndAfterNormalPayment() throws IOException {
+        String template = "700100007981110017LINDQVIST      SEAN        CNVP00010000000360NY1"
+                + "00014500000000045000";
+        String[] inputs = {
+            "0000000001" + template + "76020261102060030042026110322" + " ".repeat(25),
+            "0000000002" + template + "72020261102060030012026110322" + " ".repeat(25),
+            "0000000003" + template + "80020261102060030002026110322" + " ".repeat(25)
+        };
+        String[] cobolPricing = {
+            "CNV30002500-02500000000000000000049500004950000   ",
+            "CNV30002500+00000002500000028835012500001250000   ",
+            "CNV30002500-02500000000000000000000000000000000   "
+        };
+        Path apps = out.resolve("zero-rate-apps");
+        Path rates = out.resolve("zero-rate-rates");
+        Files.writeString(apps, String.join("\n", inputs) + "\n", StandardCharsets.ISO_8859_1);
+        Files.writeString(rates, rate("CNV30", 30, "0.2500").toLine() + "\n",
+                StandardCharsets.ISO_8859_1);
+        ByteArrayOutputStream log = new ByteArrayOutputStream();
+        assertEquals(0, new LNPRC010().run(dd(apps, rates), new PrintStream(log)));
+        StringBuilder expected = new StringBuilder();
+        for (int i = 0; i < inputs.length; i++) {
+            assertEquals(150, inputs[i].length());
+            assertEquals(50, cobolPricing[i].length());
+            expected.append(inputs[i]).append(cobolPricing[i]).append('\n');
+        }
+        assertArrayEquals(expected.toString().getBytes(StandardCharsets.ISO_8859_1),
+                Files.readAllBytes(out.resolve("PRICED.dat")));
+        assertEquals("LNPRC010 READ     0000003\nLNPRC010 PRICED   0000003\n"
+                + "LNPRC010 REJECTED 0000000\n", log.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
     void emptyFilesAndMissingRates() throws IOException {
         Path apps = Files.createFile(out.resolve("apps"));
         Path rates = Files.createFile(out.resolve("rates"));
