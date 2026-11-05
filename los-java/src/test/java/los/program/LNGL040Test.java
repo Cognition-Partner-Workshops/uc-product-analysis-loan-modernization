@@ -105,8 +105,8 @@ class LNGL040Test {
         assertEquals("0041000000002", fee.getString("GL-LOAN-NUMBER"));
         assertEquals("RATE LOCK EXTENSION FEE" + " ".repeat(7), fee.getString("GL-DESC"));
         assertEquals("000000000000001", fee.getString("GL-AMOUNT"));
-        assertEquals(List.of("LNGL040  LINES    0000006", "LNGL040  TOTAL DR       550000.51",
-                "LNGL040  TOTAL CR       550000.51"), sysoutLines());
+        assertEquals(List.of("LNGL040  LINES    0000006", "LNGL040  TOTAL DR        550000.51",
+                "LNGL040  TOTAL CR        550000.51"), sysoutLines());
     }
 
     @Test
