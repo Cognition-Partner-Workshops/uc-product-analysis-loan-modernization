@@ -67,11 +67,12 @@ class MainTest {
     }
 
     @Test
-    void unportedProgramAbendsWithRc12(@TempDir Path tmp) throws IOException {
-        Path in = Files.createFile(tmp.resolve("in"));
-        Map<String, String> env = Map.of("DD_RUNDATE", in.toString(), "DD_DECISION", in.toString(),
+    void glExtractAbendsWithRc12OnMalformedDecision(@TempDir Path tmp) throws IOException {
+        Path runDate = Files.writeString(tmp.resolve("RUNDATE.dat"), "20261105\n");
+        Path decision = Files.writeString(tmp.resolve("DECISION.dat"), "X".repeat(81) + "\n");
+        Map<String, String> env = Map.of("DD_RUNDATE", runDate.toString(), "DD_DECISION", decision.toString(),
                 "DD_GLOUT", tmp.resolve("gl").toString());
         assertEquals(Main.RC_FAILED, run(env, "lngl040"));
-        assertTrue(err().contains("LNGL040 ABEND LNGL040 is not ported to Java yet"), err());
+        assertTrue(err().contains("LNGL040 ABEND LN-DEC-REC record 1 is 81 bytes, longer than 80"), err());
     }
 }
