@@ -29,3 +29,13 @@ A financial institution is modernizing a legacy loan origination system. The leg
 - Multiple integration points with credit bureaus, core banking, and document management
 
 The Product Analyst uses Devin to accelerate the analysis phase, converting months of manual document review into structured, actionable deliverables.
+
+## Legacy loan origination batch
+
+`legacy-los/` holds the nightly origination chain the documents above
+describe: pricing, underwriting, the core banking account feed, the GL
+extract and the HMDA extract, as GnuCOBOL programs with one recorded night of
+inputs and the output that night produced. `make golden-check` in that folder
+rebuilds and reruns the chain and compares it with `golden/`;
+`make parity CANDIDATE=<dir>` does the same for any new implementation. See
+`.agents/skills/legacy-los-parity/SKILL.md`.
