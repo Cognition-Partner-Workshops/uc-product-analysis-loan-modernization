@@ -1,0 +1,14 @@
+name: legacy-los
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  golden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -q && sudo apt-get install -y -q gnucobol
+      - name: Legacy chain reproduces the golden files
+        working-directory: legacy-los
+        run: make golden-check
