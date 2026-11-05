@@ -67,11 +67,11 @@ class MainTest {
     }
 
     @Test
-    void unportedProgramAbendsWithRc12(@TempDir Path tmp) throws IOException {
+    void abendingProgramReturnsRc12(@TempDir Path tmp) throws IOException {
         Path in = Files.createFile(tmp.resolve("in"));
         Map<String, String> env = Map.of("DD_RUNDATE", in.toString(), "DD_DECISION", in.toString(),
                 "DD_GLOUT", tmp.resolve("gl").toString());
         assertEquals(Main.RC_FAILED, run(env, "lngl040"));
-        assertTrue(err().contains("LNGL040 ABEND LNGL040 is not ported to Java yet"), err());
+        assertTrue(err().contains("LNGL040 ABEND RUNDATE " + in + " is empty"), err());
     }
 }
