@@ -2,13 +2,29 @@ name: legacy-los
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, legacy-los]
 jobs:
   golden:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update -q && sudo apt-get install -y -q gnucobol
+      - name: GnuCOBOL version
+        run: cobc --version | head -1
       - name: Legacy chain reproduces the golden files
         working-directory: legacy-los
         run: make golden-check
+      - name: Legacy SYSOUT matches golden SYSOUT
+        working-directory: legacy-los
+        run: cmp out/legacy/SYSOUT.txt golden/SYSOUT.txt
+      - name: Legacy parity report
+        if: always()
+        working-directory: legacy-los
+        run: make parity CANDIDATE=out/legacy
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: legacy-parity
+          path: |
+            legacy-los/out/legacy/parity.md
+            legacy-los/out/legacy/SYSOUT.txt
