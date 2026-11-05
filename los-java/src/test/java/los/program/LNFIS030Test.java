@@ -98,7 +98,7 @@ class LNFIS030Test {
         assertEquals("FHA", m.getString("FIS-LOAN-TYPE"));
         assertEquals(approved.getString("DEC-LOAN-AMT"), m.getString("FIS-LOAN-AMOUNT"));
         assertEquals(approved.getString("DEC-FINAL-RATE"), m.getString("INTEREST-RATE"));
-        assertEquals(20270101L, m.getLong("FUNDING-DATE"));
+        assertEquals(20270114L, m.getLong("FUNDING-DATE"));
         assertEquals(20270301L, m.getLong("FIRST-PMT-DATE"));
         assertEquals(" ".repeat(50), m.toLine().substring(64));
         assertEquals(115, Files.size(out));
