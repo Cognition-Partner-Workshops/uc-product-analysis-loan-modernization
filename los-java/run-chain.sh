@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-OUT="${1:-$HERE/out/java}"
+OUT="${1:-$HERE/target/out/java}"
 IN="${2:-$HERE/../legacy-los/data/input}"
 mkdir -p "$OUT"
 RUN_DATE="$(cut -c1-8 "$IN/RUNDATE.dat")"
