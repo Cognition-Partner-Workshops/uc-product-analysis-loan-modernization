@@ -59,6 +59,7 @@
                    AT END SET RATES-EOF TO TRUE
                    NOT AT END
                        IF RATE-PRODUCT = 'APOR '
+                          AND RATE-LOCK-DAYS = 0
                            MOVE RATE-BASE TO WS-APOR
                        END-IF
                END-READ

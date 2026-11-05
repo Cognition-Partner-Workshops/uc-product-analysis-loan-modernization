@@ -34,8 +34,12 @@ orders them (`jcl/LOSNIGHT.jcl`), one recorded night of inputs
   otherwise: the monthly rate is cut (not rounded) to 12 decimals before the
   payment formula while the payment and DTI are rounded half up, the
   30-day credit-score window that sends stale scores to `R`, the jumbo cut at
-  exactly 500,000, the extension fee charged from the fourth extension, and
+  exactly 500,000, extensions past the third adding 0.12% instead of 0.125%
+  because `WS-ADDON-PCT` holds two decimals (the BRD's rounding issue), and
   the HMDA rate spread taken against the 0-day APOR row.
+- `FISACCT.dat` is the ASCII image the program writes; the MQ channel
+  converts it to EBCDIC and strips the line ends on the way to core banking.
+  Parity is against the ASCII image, so a new implementation writes ASCII too.
 - Never edit `golden/` or `data/input/` to make parity pass. If the legacy
   output is wrong, say so in the PR and leave the file alone.
 - Leave `legacy-los/` itself unchanged; new code goes in its own folder.

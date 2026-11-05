@@ -25,11 +25,16 @@ def diff_cols(a, b):
     return f"{cols[0]}-{cols[-1]}" if len(cols) > 1 else str(cols[0])
 
 
+def records(path):
+    """Records with their terminators, so line-end changes count as mismatches."""
+    return path.read_bytes().decode("latin-1").splitlines(keepends=True)
+
+
 def compare(golden, candidate):
-    g = golden.read_text().splitlines()
+    g = records(golden)
     if not candidate.exists():
         return len(g), 0, len(g), [("missing", "", "")]
-    c = candidate.read_text().splitlines()
+    c = records(candidate)
     matches, samples = 0, []
     for i in range(max(len(g), len(c))):
         gl = g[i] if i < len(g) else "<no record>"
@@ -60,7 +65,7 @@ def main():
                 details.append(f"- {name}: candidate file missing")
             else:
                 details.append(f"- {name} record {s[0]}, columns {diff_cols(s[1], s[2])}\n"
-                               f"  - legacy:    `{s[1]}`\n  - candidate: `{s[2]}`")
+                               f"  - legacy:    `{s[1]!r}`\n  - candidate: `{s[2]!r}`")
     verdict = "FAIL" if failed else "PASS"
     report = "\n".join([f"Parity against legacy golden files: {verdict}", ""] + lines
                        + ([""] + details if details else [])) + "\n"
