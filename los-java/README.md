@@ -1,11 +1,13 @@
 # Java LOS batch
 
 Requires Java 21. Build with `JAVA_HOME=/path/to/jdk-21 ./mvnw -q -B verify`.
-Run `./run-chain.sh [output-dir] [input-dir]` (defaults: `target/out/java` and
+Run `./run-chain.sh [output-dir] [input-dir]` (defaults: `out/java`, git-ignored, and
 `../legacy-los/data/input`). The runner uses only original input files and
 Java-generated intermediates, derives extract filenames from RUNDATE, and writes
-the LOSNIGHT header and program output to SYSOUT.txt. Diagnostics go to stderr.
-The highest return code is propagated; RC > 4 skips all remaining steps.
+the LOSNIGHT header and program output to SYSOUT.txt. Per-step SYSOUT goes to
+`sysout/`, RCs to `steps.tsv`, port readiness to `ports.tsv` and diagnostics to
+`stderr.txt`. These feed `make parity`. The highest RC is propagated. After any
+RC > 4, the remaining steps are skipped and recorded as RC 12.
 
 The full chain requires all five program ports. Any step that is not yet
 ported returns RC 12, and the steps after it are skipped. To run pricing alone,

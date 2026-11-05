@@ -16,3 +16,11 @@ jobs:
       - name: Build and run the unit tests
         working-directory: los-java
         run: ./mvnw -B verify
+      - name: Compare with legacy golden datasets and control totals
+        working-directory: los-java
+        run: make parity
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: los-java-parity
+          path: los-java/out/java/
