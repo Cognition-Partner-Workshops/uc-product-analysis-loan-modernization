@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import los.BatchProgram;
 import los.Dd;
 import los.record.Copybooks;
@@ -59,14 +60,14 @@ public final class LNFIS030 implements BatchProgram {
                 }
             }
         }
-        sysout.println("LNFIS030 WRITTEN  " + String.format("%07d", written));
+        sysout.print(String.format(Locale.ROOT, "LNFIS030 WRITTEN  %07d\n", written));
         return 0;
     }
 
     /** FUNDING-DATE: run date plus 30 calendar days (INTEGER-OF-DATE arithmetic). */
     static long fundingDate(long runDate) {
-        LocalDate d = LocalDate.parse(String.format("%08d", runDate), DateTimeFormatter.BASIC_ISO_DATE);
-        return Long.parseLong(d.plusDays(30).format(DateTimeFormatter.BASIC_ISO_DATE));
+        LocalDate d = LocalDate.parse(String.format(Locale.ROOT, "%08d", runDate), DateTimeFormatter.BASIC_ISO_DATE);
+        return Long.parseLong(d.plusDays(30).format(DateTimeFormatter.BASIC_ISO_DATE.withLocale(Locale.ROOT)));
     }
 
     /** FIRST-PMT-DATE: day 01 of the funding month plus two, rolling the year past 12. */

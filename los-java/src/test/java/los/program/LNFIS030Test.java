@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import los.Dd;
 import los.record.Copybooks;
@@ -52,6 +53,18 @@ class LNFIS030Test {
                 .stream().filter(l -> l.startsWith("LNFIS030 ")).toList();
         assertEquals(golden, sysout.lines().toList());
         assertEquals("LNFIS030 WRITTEN  0000019\n", sysout);
+    }
+
+    @Test
+    void outputIsLocaleIndependent(@TempDir Path tmp) throws IOException {
+        Locale saved = Locale.getDefault();
+        Locale.setDefault(Locale.forLanguageTag("ar-EG-u-nu-arab"));
+        try {
+            assertEquals(20261205L, LNFIS030.fundingDate(20261105L));
+            recordedNightMatchesGoldenFisacctAndSysout(tmp);
+        } finally {
+            Locale.setDefault(saved);
+        }
     }
 
     @ParameterizedTest
