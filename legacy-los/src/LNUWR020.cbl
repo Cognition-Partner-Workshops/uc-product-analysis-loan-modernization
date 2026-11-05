@@ -72,6 +72,7 @@
        2000-DECIDE.
            ADD 1 TO WS-READ
            MOVE PRC-APP TO LN-APP-REC
+           MOVE SPACES TO LN-DEC-REC
            INITIALIZE LN-DEC-REC
            MOVE APP-ID          TO DEC-APP-ID
            MOVE LOAN-TYPE       TO DEC-LOAN-TYPE

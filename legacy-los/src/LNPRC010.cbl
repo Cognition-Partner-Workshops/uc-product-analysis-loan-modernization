@@ -87,6 +87,7 @@
 
        2000-PRICE-APP.
            ADD 1 TO WS-READ
+           MOVE SPACES TO LN-PRC-REC
            INITIALIZE LN-PRC-REC
            MOVE LN-APP-REC TO PRC-APP
            MOVE '00' TO PRC-STATUS

@@ -31,7 +31,8 @@ orders them (`jcl/LOSNIGHT.jcl`), one recorded night of inputs
 - The golden files are the contract. A new implementation reads the same
   `data/input/` files and writes the same five datasets byte for byte.
 - Keep the legacy behaviour, including the odd parts, unless a ticket says
-  otherwise: COBOL truncation (not rounding) of the payment and DTI, the
+  otherwise: the monthly rate is cut (not rounded) to 12 decimals before the
+  payment formula while the payment and DTI are rounded half up, the
   30-day credit-score window that sends stale scores to `R`, the jumbo cut at
   exactly 500,000, the extension fee charged from the fourth extension, and
   the HMDA rate spread taken against the 0-day APOR row.
