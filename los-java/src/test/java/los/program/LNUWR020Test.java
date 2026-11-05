@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import los.Dd;
 import los.record.Copybooks;
@@ -190,6 +191,23 @@ class LNUWR020Test {
         // monthly 0.08: 0.0001 * 100 / 0.08 = 0.125 -> 0.13
         assertEquals(new BigDecimal("0.13"),
                 LNUWR020.dti(new BigDecimal("0.96"), new BigDecimal("0.0001"), BigDecimal.ZERO));
+    }
+
+    @Test
+    void outputDoesNotDependOnTheDefaultLocale(@TempDir Path tmp) throws IOException {
+        Locale saved = Locale.getDefault();
+        try {
+            // Arabic-Egypt formats %07d with Arabic-Indic digits unless Locale.ROOT is used
+            Locale.setDefault(Locale.forLanguageTag("ar-EG-u-nu-arab"));
+            Path decision = tmp.resolve("DECISION.dat");
+            String sysout = run(LEGACY.resolve("data/input/RUNDATE.dat"), LEGACY.resolve("golden/PRICED.dat"),
+                    decision);
+            assertEquals(-1L, Files.mismatch(LEGACY.resolve("golden/DECISION.dat"), decision));
+            assertEquals("LNUWR020 READ     0000060", sysout.lines().findFirst().orElseThrow());
+            assertEquals(30L, LNUWR020.scoreAge(RUN_DATE, 20261006L));
+        } finally {
+            Locale.setDefault(saved);
+        }
     }
 
     @Test

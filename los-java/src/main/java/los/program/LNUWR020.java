@@ -10,6 +10,7 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import los.BatchProgram;
 import los.Dd;
 import los.record.Copybooks;
@@ -105,7 +106,7 @@ public final class LNUWR020 implements BatchProgram {
     }
 
     private static void display(PrintStream sysout, String label, long count) {
-        sysout.print(label + String.format("%07d", count % 10_000_000L) + "\n");
+        sysout.print(label + String.format(Locale.ROOT, "%07d", count % 10_000_000L) + "\n");
     }
 
     /** 2000-DECIDE: one DECISION record for one PRICED record. */
@@ -150,7 +151,7 @@ public final class LNUWR020 implements BatchProgram {
 
     private static LocalDate date(long yyyymmdd) {
         try {
-            return LocalDate.parse(String.format("%08d", yyyymmdd), YYYYMMDD);
+            return LocalDate.parse(String.format(Locale.ROOT, "%08d", yyyymmdd), YYYYMMDD);
         } catch (DateTimeParseException e) {
             throw new RecordFormatException("invalid date " + yyyymmdd + ": " + e.getMessage());
         }
